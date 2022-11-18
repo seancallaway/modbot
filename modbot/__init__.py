@@ -32,14 +32,14 @@ class Bot:
             # This is needed because modqueue is an Iterable, but has no count() or len() method.
             count += 1
 
-        if count > 0 and count != self.last_modmail_count_alerted:
+        if count > 0 and count != self.last_modqueue_count_alerted:
             log.info(f'Alerting on {count} items in modqueue.')
             if not self.send_discord_alert(f'The modqueue has {count} item(s) in it.'):
                 log.error('Failed to send Discord message.')
-            self.last_modmail_count_alerted = count
-        elif count == 0 and self.last_modmail_count_alerted != 0:
+            self.last_modqueue_count_alerted = count
+        elif count == 0 and self.last_modqueue_count_alerted != 0:
             log.info(f'Modqueue emptied.')
-            self.last_modmail_count_alerted = 0
+            self.last_modqueue_count_alerted = 0
 
     def __init__(self, reddit_client_id: str, reddit_client_secret: str, reddit_username: str, reddit_password: str,
                  subreddit: str, discord_webhook_url: str, modqueue_check_interval: int = 300):
