@@ -1,4 +1,6 @@
+from datetime import datetime
 from logging import getLogger
+from time import sleep
 
 from praw import Reddit
 from requests import post
@@ -72,6 +74,27 @@ class Bot:
             log.info('Modqueue emptied.')
             self.last_modqueue_count_alerted = 0
 
+    def run(self) -> None:
+        """The main loop of the bot."""
+        self.should_run = True
+
+        while self.should_run:
+            utc_now = datetime.utcnow()
+
+            # Modqueue
+            if not self.last_modqueue_check or (utc_now - self.last_modqueue_check).seconds >= self.modqueue_check_interval:
+                log.info('Checking modqueue.')
+                self.check_modqueue()
+                self.last_modqueue_check = datetime.utcnow()
+
+            # Modmail
+            if not self.last_modmail_check or (utc_now - self.last_modmail_check).seconds >= self.modmail_check_interval:
+                log.info('Checking modmail.')
+                self.check_modmail()
+                self.last_modmail_check = datetime.utcnow()
+
+            sleep(10)
+
     def __init__(self, reddit_client_id: str, reddit_client_secret: str, reddit_username: str, reddit_password: str,
                  subreddit: str, discord_webhook_url: str, modqueue_check_interval: int = 300,
                  modmail_check_interval: int = 900):
@@ -111,6 +134,7 @@ class Bot:
         self.modmail_check_interval = modmail_check_interval
 
         # Setup instance-specific values
+        self.should_run = False
         self.last_modqueue_check = None
         self.last_modqueue_count_alerted = 0
         self.last_modmail_check = None
