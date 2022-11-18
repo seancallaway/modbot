@@ -1,6 +1,8 @@
 from logging import getLogger
 
 from praw import Reddit
+from requests import post
+from requests.exceptions import HTTPError
 
 
 log = getLogger(__name__)
@@ -22,8 +24,20 @@ class Bot:
         bool
             True if the message send successfully. Otherwise, False.
         """
-        # TODO: Implement this (#7).
-        return True
+        data = {
+            'username': 'ModBot',
+            'content': message,
+        }
+
+        result = post(self.d_webhook_url, json=data)
+        try:
+            result.raise_for_status()
+        except HTTPError as ex:
+            log.error(ex)
+        else:
+            return True
+
+        return False
 
     def check_modmail(self) -> None:
         """Checks for unread modmail and alerts where there are more than last seen."""
