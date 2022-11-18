@@ -25,6 +25,23 @@ class Bot:
         # TODO: Implement this (#7).
         return True
 
+    def check_modmail(self) -> None:
+        """Checks for unread modmail and alerts where there are more than last seen."""
+        try:
+            count = self.subreddit.modmail.unread_count()['unread']
+        except KeyError:
+            log.error('Reddit API not returning modmail entries. This could be an authentication issue.')
+            return
+
+        if count > 0 and count != self.last_modmail_count_alerted:
+            log.info(f'Alerting on {count} unread modmail messages.')
+            if not self.send_discord_alert(f'Modmail has {count} unread message(s).'):
+                log.error('Failed to send Discord message for modmail.')
+            self.last_modmail_count_alerted = count
+        elif count == 0 and self.last_modmail_count_alerted != 0:
+            log.info('Modmail read.')
+            self.last_modmail_count_alerted = 0
+
     def check_modqueue(self) -> None:
         """Checks the modqueue and alerts when there are more items in the queue than last seen."""
         count = 0
@@ -35,10 +52,10 @@ class Bot:
         if count > 0 and count != self.last_modqueue_count_alerted:
             log.info(f'Alerting on {count} items in modqueue.')
             if not self.send_discord_alert(f'The modqueue has {count} item(s) in it.'):
-                log.error('Failed to send Discord message.')
+                log.error('Failed to send Discord message for modqueue.')
             self.last_modqueue_count_alerted = count
         elif count == 0 and self.last_modqueue_count_alerted != 0:
-            log.info(f'Modqueue emptied.')
+            log.info('Modqueue emptied.')
             self.last_modqueue_count_alerted = 0
 
     def __init__(self, reddit_client_id: str, reddit_client_secret: str, reddit_username: str, reddit_password: str,
