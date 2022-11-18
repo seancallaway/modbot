@@ -1,7 +1,27 @@
+from logging import getLogger
+
 from praw import Reddit
 
 
+log = getLogger(__name__)
+
+
 class Bot:
+
+    def check_modqueue(self) -> None:
+        """Checks the modqueue and alerts when there are more items in the queue than last seen."""
+        count = 0
+        for _ in self.subreddit.mod.modqueue(limit=None):
+            # This is needed because modqueue is an Iterable, but has no count() or len() method.
+            count += 1
+
+        if count > 0 and count != self.last_modmail_count_alerted:
+            # TODO: send an alert
+            log.info(f'Alerting on {count} items in modqueue.')
+            self.last_modmail_count_alerted = count
+        elif count == 0 and self.last_modmail_count_alerted != 0:
+            log.info(f'Modqueue emptied.')
+            self.last_modmail_count_alerted = 0
 
     def __init__(self, reddit_client_id: str, reddit_client_secret: str, reddit_username: str, reddit_password: str,
                  subreddit: str, discord_webhook_url: str):
