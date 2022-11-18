@@ -8,6 +8,23 @@ log = getLogger(__name__)
 
 class Bot:
 
+    def send_discord_alert(self, message: str) -> bool:
+        """
+        Sends a message via Discord webhook.
+
+        Parameters
+        ----------
+        message : str
+            The message to send.
+
+        Returns
+        -------
+        bool
+            True if the message send successfully. Otherwise, False.
+        """
+        # TODO: Implement this (#7).
+        return True
+
     def check_modqueue(self) -> None:
         """Checks the modqueue and alerts when there are more items in the queue than last seen."""
         count = 0
@@ -16,8 +33,9 @@ class Bot:
             count += 1
 
         if count > 0 and count != self.last_modmail_count_alerted:
-            # TODO: send an alert
             log.info(f'Alerting on {count} items in modqueue.')
+            if not self.send_discord_alert(f'The modqueue has {count} item(s) in it.'):
+                log.error('Failed to send Discord message.')
             self.last_modmail_count_alerted = count
         elif count == 0 and self.last_modmail_count_alerted != 0:
             log.info(f'Modqueue emptied.')
