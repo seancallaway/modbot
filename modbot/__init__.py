@@ -59,7 +59,8 @@ class Bot:
             self.last_modqueue_count_alerted = 0
 
     def __init__(self, reddit_client_id: str, reddit_client_secret: str, reddit_username: str, reddit_password: str,
-                 subreddit: str, discord_webhook_url: str, modqueue_check_interval: int = 300):
+                 subreddit: str, discord_webhook_url: str, modqueue_check_interval: int = 300,
+                 modmail_check_interval: int = 900):
         """
         Configures an instance of the modbot.
 
@@ -79,6 +80,8 @@ class Bot:
             The URL of the webhook created in Discord.
         modqueue_check_interval : int
             The number of seconds between modqueue checks. Default 300.
+        modmail_check_interval : int
+            The number of seconds between modmail checks. Default 900.
         """
         if None in [reddit_client_id, reddit_client_secret, reddit_username, reddit_password, subreddit,
                     discord_webhook_url]:
@@ -91,6 +94,7 @@ class Bot:
         self.subreddit_name = subreddit
         self.d_webhook_url = discord_webhook_url
         self.modqueue_check_interval = modqueue_check_interval
+        self.modmail_check_interval = modmail_check_interval
 
         # Setup instance-specific values
         self.last_modqueue_check = None
